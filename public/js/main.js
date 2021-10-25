@@ -8,14 +8,16 @@ class Personne {
         this.mainDroite = [];
         this.seDeplacer = (depart, arrivee) => {
             arrivee.personnes.push(this.nom)
-            depart.personnes.pop()
+            depart.personnes.slice(depart.personnes.indexOf(this), 1)
             this.lieu=arrivee.nom
         }
         this.payerArticle =(article) => {
-            return this.argent -= article
+            this.argent -= article.prix;
         }
         this.couper =(ingredient, outil) => {
-            return `Nous utilisons ${outil} pour couper ${ingredient}`
+            if (ingredient.etat == "entier") {
+                outil.action(ingredient)
+            }
         }
     }
 }
@@ -28,14 +30,6 @@ class Maison {
     }
 }
 
-// outil
-class Outil {
-    constructor(nom,action) {
-        this.nom = nom;
-        this.action = "coupé";
-    }
-}
-
 // ingredient
 class Ingredient{
     constructor(nom,etats,prix){
@@ -44,6 +38,15 @@ class Ingredient{
         this.prix = prix;
     }
 }
+
+// outil
+let Outil = {
+    nom : "outil",
+    action(ingredient) {
+        ingredient.etats = "coupe"
+    }
+}
+
 
 let oignon = new Ingredient ("oignon", "entier", 2);
 let oeuf = new Ingredient ("oeuf", "entier", 1);
@@ -72,33 +75,17 @@ let ingredient = [oignon,oeuf,epice,fromage,sel]
 
 
 // poêle
-class Poêle {
-    constructor(nom,action,contenu) {
-        this.nom=nom;
-        this.action=action;
-        this.contenu = contenu;
-        cuire = (cuireOmelette) => {
-            cuireOmelette.etats="cuit";
-            setTimeout(() => {
-                console.log(`votre ${cuireOmelette.nom} est ${cuireOmelette.etats} apres 4 sec`)
-            }, 4000);
-        }
+let poele = {
+    nom: "poele",
+    contenu: [],
+    cuire() {
+        console.log(`L'${this.contenu[0].nom} est en préparation`);
+        this.contenu[0].etat = "cuite"
+        setTimeout(() => {
+            console.log(`${this.contenu[0].nom} est ${this.contenu[0].etat}`);
+        }, 4000);
     }
 }
-
-// class Bol {
-//     constructor(contenu) {
-//         this.contenu = [];
-//         melanger(nomMelange) = () => {
-//             let newMelange = {
-//                 nom = newMelange,
-//                 état = "pas cuit"
-//             }
-//             this.contenu = [];
-//             this.contenu.replace("pas cuit", "l'obj newMelange");
-//         }        
-//     }
-// }
 
 
 // bol
@@ -110,6 +97,9 @@ let bol = {
             nom: nomMelange,
             etat: "pas cuit"
         }
+        while (this.contenu.length > 0) {
+            this.contenu.shift
+        }
         this.contenu.push(newMelange);
     }
 }
@@ -118,7 +108,6 @@ let bol = {
 let zafar= new Personne("zafar","maison",100);
 let personne = new Personne();
 let lieu = new Lieu();
-let outil = new Outil();
 // let ingredient = new Ingredient();
 // let lieu = new Lieu();
 // let poele = new Poêle();
@@ -168,22 +157,17 @@ for (let index = 0; index < zafar.mainDroite[0].contenu.length; index++) {
 
 console.log("l'argent qu'il reste me", zafar.argent);
 
-// Retourner à la maison pour continuer l'omelette
 zafar.seDeplacer(epicerie, maison)
 
 
-// Afficher un petit message
 console.log("Je suis de retour a la ", zafar.lieu);
 
-// Vérifier chaque ingrédient dans le bol et le couper seulement s'il est entier ! Pour ça on utilise la méthode couper de personnage
+bol.contenu.forEach(e => {
+    perso.couper(e, couteau)
+});
 
+bol.melanger("omelette")
 
-// Mélanger le contenu du bol avec la méthode melanger. on va nommer ce mélange une 'omelette' (à passer en param).
-
-// Afficher un message avec le nouveau mélange
-
-// vider le contenu du bol dans la poêle. Il ne doit plus rien avoir dans le bol et y avoir juste l'omelette pas cuite.
-
-// Cuire l'omelette avec la méthode de la poêle 
-
-// Afficher un message final, votre omelette est cuite :)
+console.log(`${bol.contenu[0].nom} n'est ${bol.contenu[0].etat}`);
+poele.contenu.push(bol.contenu.pop());
+poele.cuire();
